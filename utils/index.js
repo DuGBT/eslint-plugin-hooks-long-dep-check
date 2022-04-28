@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const {
     addFunctionToMap,
     isReactComponent,
@@ -6,10 +8,12 @@ const {
     getAllFunctionDeclarations,
     useEffectFilter,
     findAllSetStateCall,
-    findSetStateCallInRecursion,
-    findUseCallBackBlockStatement,
-    parseMemberExpression,
+    getCodeAst,
 } = require("hooks-dep-trace");
+const filePath = "";
+const code = fs.readFileSync(path.join(__dirname, filePath)).toString();
+
+const ast = getCodeAst(path.join(__dirname, filePath));
 
 function getEffectMap(Node) {
     const topLevelFunction = getComponentDeclaration(Node);
@@ -27,4 +31,7 @@ function getEffectMap(Node) {
     console.log(effectCallMap, functionMap);
 }
 
-// module.exports = {};
+module.exports = {
+    code,
+    ast,
+};
