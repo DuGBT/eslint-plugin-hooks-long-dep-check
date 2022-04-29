@@ -1,22 +1,13 @@
-const fs = require("fs");
-const path = require("path");
 const {
-    addFunctionToMap,
-    isReactComponent,
     getComponentDeclaration,
-    getComponentName,
     getAllFunctionDeclarations,
     useEffectFilter,
     findAllSetStateCall,
-    getCodeAst,
 } = require("hooks-dep-trace");
-const filePath = "";
-const code = fs.readFileSync(path.join(__dirname, filePath)).toString();
 
-const ast = getCodeAst(path.join(__dirname, filePath));
-
-function getEffectMap(Node) {
+function getCodeLocs(Node) {
     const topLevelFunction = getComponentDeclaration(Node);
+    if (!topLevelFunction) return [];
     const functionMap = {};
     const effectCallMap = new Map();
 
@@ -25,13 +16,42 @@ function getEffectMap(Node) {
     });
 
     const useEffectdeclarations = topLevelFunction.filter(useEffectFilter);
-    const isComponent = isReactComponent(Node);
     findAllSetStateCall(functionMap, useEffectdeclarations, effectCallMap);
 
-    console.log(effectCallMap, functionMap);
+    const indexs = findLongEffectIndex(effectCallMap, useEffectdeclarations);
+    if (!indexs.length) return [];
+    const locs = indexs.map((nodeObj) => {
+        return {
+            loc: nodeObj.node.expression.callee.loc,
+            type: nodeObj.type,
+        };
+    });
+    return locs;
+}
+
+function nodeFilter(node) {
+    return (
+        node.type === "VariableDeclaration" ||
+        node.type === "FunctionDeclaration" ||
+        node.type === "ExportDefaultDeclaration"
+    );
+}
+
+function findLongEffectIndex(effectCallMap, effects) {
+    return Array.from(effectCallMap.entries()).flatMap(
+        ([dependencies, setStateCalls], index) => {
+            if (dependencies?.length >= 5) {
+                return [{ node: effects[index], type: "dependencies" }];
+            }
+            if (setStateCalls.length >= 5) {
+                return [{ node: effects[index], type: "setStateCalls" }];
+            }
+            return [];
+        }
+    );
 }
 
 module.exports = {
-    code,
-    ast,
+    getCodeLocs,
+    nodeFilter,
 };

@@ -7,11 +7,8 @@
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
-// const { ast, code } = require("../../../utils/index");
-const fs = require("fs");
-const filePath = "";
 
-const rule = require("../../../lib/rules/long-hooks-deps"),
+const rule = require("../../../lib/rules/no-long-hooks"),
     RuleTester = require("eslint").RuleTester;
 RuleTester.setDefaultConfig({
     parserOptions: {
