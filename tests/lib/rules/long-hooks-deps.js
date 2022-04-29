@@ -2,12 +2,15 @@
  * @fileoverview dont make useEffect call with too much dependencies and setState call
  * @author willsonwei
  */
- "use strict";
+"use strict";
 
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
-const { ast,code } = require("../../../utils/index");
+// const { ast, code } = require("../../../utils/index");
+const fs = require("fs");
+const filePath = "";
+
 const rule = require("../../../lib/rules/long-hooks-deps"),
     RuleTester = require("eslint").RuleTester;
 RuleTester.setDefaultConfig({
